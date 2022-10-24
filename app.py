@@ -1,31 +1,42 @@
 '''Dash app'''
-from dash import Dash, html, dcc, Input, Output
-import dash_leaflet as dl
-from src.data_loader import load_data
-from src.mapper import Mapper
 
+from dash import Dash, html
+from src import components, layouts
+from src.common import FilterInput
+
+# Create dash app
 app = Dash(__name__)
 
-df = load_data()
+# Initialise custom components
+vehicle_dropdown = components.VehicleDropdown('my-input')
+date_picker = components.DatePicker('date-picker')
+filter_store = components.FilterStore('filter-store')
+map_component = components.Map('map')
+column_layout = layouts.ColumnLayout('column-layout')
 
+# Set app layout
 app.layout = html.Div(children=[
+    filter_store.get_component(),
     html.H1("Charizard", style={'textAlign': 'center', 'color': '#7FDBFF'}),
-    html.Div([
-        "Input: ",
-        dcc.Input(id='my-input', value='JD79WMGP', type='text')
-    ]),
-    html.Br(),
-    dl.Map([dl.TileLayer(), dl.LayerGroup(id="layer-group")], style={'width': '1000px', 'height': '500px'})
+    column_layout.get_component([
+        layouts.Column(1, [
+            vehicle_dropdown.get_component(),
+            date_picker.get_component()
+        ]),
+        layouts.Column(2, [
+            map_component.get_component()
+        ])
+    ])
 ])
 
-@app.callback(
-    Output(component_id='layer-group', component_property='children'),
-    Input(component_id='my-input', component_property='value')
-)
-def update_output_div(input_value):
-    mapper = Mapper(df);
-    markers = mapper.clean().filter_events_on_number_plate(input_value).generate_points().generate_color().generate_markers()
-    return markers
+# Set custom callbacks
+vehicle_dropdown.set_callback(app)
+input_tuples = [
+    FilterInput('number_plate', vehicle_dropdown.id),
+    FilterInput('start_date', date_picker.id, 'start_date'),
+    FilterInput('end_date', date_picker.id, 'end_date')
+]
+filter_store.set_callback(app, input_tuples, map_component.id)
 
 if __name__ == '__main__':
     app.run_server(debug=True)

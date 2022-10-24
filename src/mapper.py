@@ -34,11 +34,19 @@ class Mapper:
     self.filter_events(lambda x: x['number_plate'] == number_plate)
     return self
 
+  def filter_events_on_start_date(self, start_date):
+    self.filter_events(lambda x: x['created_at'] >= start_date)
+    return self
+
+  def filter_events_on_end_date(self, end_date):
+    self.filter_events(lambda x: x['created_at'] <= end_date)
+    return self
+
   def generate_map(self):
     geometry = [Point(xy) for xy in zip(self.points['longitude'], self.points['latitude'])]
     gdf = GeoDataFrame(self.points, geometry=geometry, crs="epsg:4326") 
     return gdf.explore(color=self.points['color'], marker_kwds=dict(radius=10, fill=True), popup=True)
 
-  def generate_markers(self):
+  def get_markers(self):
     # Create markers from data frame.
-    return [dl.CircleMarker(center=[row["latitude"], row["longitude"]], radius=row['size_normalised'] * 20, fillColor=row['color'], fillOpacity=1) for i, row in self.points.iterrows()]  
+    return [dl.CircleMarker(center=[row['latitude'], row['longitude']], radius=row['size_normalised'] * 20, color=row['color'], fillColor=row['color'], fillOpacity=0.8) for i, row in self.points.iterrows()]  

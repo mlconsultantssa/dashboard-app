@@ -1,0 +1,4 @@
+.loading_wrapper > div {
+    visibility: visible !important;
+    z-index: 1;
+}
