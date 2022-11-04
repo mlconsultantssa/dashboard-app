@@ -13,3 +13,5 @@ An analytics dashboard for project Charizard.
 
 <br />
 
+python -m pip install -e .
+
