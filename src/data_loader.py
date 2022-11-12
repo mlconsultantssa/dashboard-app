@@ -1,9 +1,10 @@
 import pandas as pd
 
 def load_data():
-    data_path = '/workspaces/dashboard-app/data/camera_events.csv'
-
-    return pd.read_csv(data_path)
+    data_path = './data/camera_events.csv'
+    data = pd.read_csv(data_path)
+    print(data.head())
+    return data
 
 def load_distinct_vehicles():
     data = load_data()

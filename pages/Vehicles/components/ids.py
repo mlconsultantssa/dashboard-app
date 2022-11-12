@@ -1,0 +1,1 @@
+LICENCE_PLATE_DROPDOWN = 'licence-plate-dropdown'

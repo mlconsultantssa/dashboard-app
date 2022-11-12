@@ -5,7 +5,8 @@ from src import components, layouts
 from src.common import FilterInput
 
 # Create dash app
-app = Dash(__name__)
+app = Dash(__name__, use_pages=True)
+application = app.server
 
 # Initialise custom components
 vehicle_dropdown = components.VehicleDropdown('my-input')
@@ -39,4 +40,4 @@ input_tuples = [
 filter_store.set_callback(app, input_tuples, map_component.id)
 
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run_server(port=8050,debug=True)
