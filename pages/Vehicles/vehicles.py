@@ -1,20 +1,27 @@
 
-from dash import Dash, html
+from dash import Dash, html, dcc, callback, Output, Input
 import dash
-from .components import licence_plate_dropdown
-dash.register_page(__name__)
+import dash_bootstrap_components as dbc
+from .components import licence_plate_dropdown, date_picker, mapper
+dash.register_page(__name__, name = "Vehicles", path='/vehicles')
 
-
-def layout():
-    return html.Div(
-        className = "app-div",
-        children = [
-            html.H1('Metagrated dashboard'),
-            html.Hr(),
-            html.Div(
-                children = [
+layout = html.Div(
+    [
+        dbc.Row(
+            [
+                dbc.Col(
                     licence_plate_dropdown.render()
-                ]
-            )
-        ]
-    )
+                ),
+                dbc.Col(
+                    date_picker.render()
+                )
+            ]
+        ),
+        dbc.Row(
+            [
+                mapper.render()
+            ]
+        )
+    ]
+)
+

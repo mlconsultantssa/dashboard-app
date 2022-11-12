@@ -1,43 +1,68 @@
-'''Dash app'''
+#https://towardsdatascience.com/beginners-guide-to-building-a-multi-page-dashboard-using-dash-5d06dbfc7599
 
-from dash import Dash, html
-from src import components, layouts
-from src.common import FilterInput
 
-# Create dash app
-app = Dash(__name__, use_pages=True)
-application = app.server
+from dash import Dash, html, dcc
+import dash
+import dash_bootstrap_components as dbc
 
-# Initialise custom components
-vehicle_dropdown = components.VehicleDropdown('my-input')
-date_picker = components.DatePicker('date-picker')
-filter_store = components.FilterStore('filter-store')
-map_component = components.Map('map')
-column_layout = layouts.ColumnLayout('column-layout')
 
-# Set app layout
-app.layout = html.Div(children=[
-    filter_store.get_component(),
-    html.H1("Charizard", style={'textAlign': 'center', 'color': '#7FDBFF'}),
-    column_layout.get_component([
-        layouts.Column(1, [
-            vehicle_dropdown.get_component(),
-            date_picker.get_component()
-        ]),
-        layouts.Column(2, [
-            map_component.get_component()
-        ])
-    ])
+dropdown = dbc.DropdownMenu(
+    children=[
+        dbc.DropdownMenuItem("Home", href="/"),
+        dbc.DropdownMenuItem("Vehicles", href="/vehicles"),
+        dbc.DropdownMenuItem("Clients", href="/clients"),
+    ],
+    nav = True,
+    in_navbar = True,
+    label = "Menu",
+)
+
+navbar = dbc.Navbar(
+    dbc.Container(
+        [
+            dbc.NavbarToggler(id="navbar-toggler2"),
+            dbc.Collapse(
+                dbc.Nav(
+                    # right align dropdown menu with ml-auto className
+                    [dropdown], className="ml-auto", navbar=True
+                ),
+                id="navbar-collapse2",
+                navbar=True,
+            ),
+        ]
+    ),
+    color="dark",
+    dark=True,
+    className="mb-4",
+)
+
+def create_layout(app: Dash) -> html.Div:
+    return html.Div([
+	html.H1('Metagrated'),
+    html.Hr(),
+    html.Div(
+        [
+            dropdown,
+            html.Hr()
+            # html.Div(
+            #     dcc.Link(
+            #         f"{page['name']} - {page['path']}", href=page["relative_path"]
+            #     )
+            # )
+            # for page in dash.page_registry.values()
+        ]
+    ),
+
+	dash.page_container
 ])
 
-# Set custom callbacks
-vehicle_dropdown.set_callback(app)
-input_tuples = [
-    FilterInput('number_plate', vehicle_dropdown.id),
-    FilterInput('start_date', date_picker.id, 'start_date'),
-    FilterInput('end_date', date_picker.id, 'end_date')
-]
-filter_store.set_callback(app, input_tuples, map_component.id)
-
-if __name__ == '__main__':
+def main() -> None:
+    external_stylesheets = [dbc.themes.LUX]
+    app = Dash(__name__, external_stylesheets=external_stylesheets, use_pages=True)
+    app.title = "metagrated"
+    app.layout = create_layout(app)
     app.run_server(port=8050,debug=True)
+
+
+if __name__=="__main__":
+    main()
