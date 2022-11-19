@@ -3,6 +3,12 @@
 from dash import Dash, html
 from src import components, layouts
 from src.common import FilterInput
+from sqlalchemy import create_engine
+from sqlalchemy.pool import NullPool
+
+engine = create_engine(
+    'postgresql+psycopg2://postgres:toothpick@localhost/metagrated-dev',
+    pool=NullPool)
 
 # Create dash app
 app = Dash(__name__)
