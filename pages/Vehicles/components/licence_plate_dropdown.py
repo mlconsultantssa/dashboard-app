@@ -1,15 +1,17 @@
 from dash import Dash, html, dcc 
-from . import ids
+from src.data_loader import load_data
 
-def render():
-    licence_plates = ['dsdd', 'jkhjjds']
+def render(id):
+    licence_plates = list(load_data()['number_plate'])
+    #licence_plates = ['NPN22382', 'FNK478GP']
+
     return html.Div(
         children = [
             html.H6('Choose licence plate'),
             dcc.Dropdown(
-                id = ids.LICENCE_PLATE_DROPDOWN,
+                id = id,
                 options=[{'label': licence_plate, 'value': licence_plate} for licence_plate in licence_plates],
-                value = licence_plates,
+                value = None,
                 multi=True
             )
         ]

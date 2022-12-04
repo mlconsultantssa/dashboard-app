@@ -1,5 +1,4 @@
 from dash import Dash, html, dcc 
-from . import ids
 from datetime import date
 import pandas as pd
 from shapely.geometry import Point
@@ -57,17 +56,20 @@ class Mapper:
 
 
 
-def render():
+def render(id):
     '''Returns component'''
     return dcc.Loading(
     parent_className='loading_wrapper',
     children=[
         dl.Map(
-            [dl.TileLayer(), dl.LayerGroup(id=ids.MAP_GROUP_LAYER)],
+            [dl.TileLayer(), dl.LayerGroup(id=id)],
             center=[-30, 25], zoom=5,
             style={'width': '100%', 'height': '500px'}
         )
     ],
     style={'zIndex': 10}
     )
+
+
+
     

@@ -8,6 +8,7 @@ dash.register_page(__name__, path='/', name='Home') # '/' is home page
 
 layout = html.Div(
     [
-        html.H1('WELCOME TO THEI AP')
+        html.H1('Welcome to the APP'),
+        html.H4('This app provides dashboard for analyzing metagrateds LRP data')
     ]
 )
