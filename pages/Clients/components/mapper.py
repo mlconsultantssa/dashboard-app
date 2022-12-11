@@ -38,6 +38,11 @@ class Mapper:
         self.filter_events(lambda x: x['number_plate'] == number_plate)
         return self
 
+    def filter_events_on_client(self, client):
+        print(client)
+        self.filter_events(lambda x: x['camera_id'] == client)
+        return self
+
     def filter_events_on_start_date(self, start_date):
         self.filter_events(lambda x: x['created_at'] >= start_date)
         return self
