@@ -49,7 +49,7 @@ def update_map(start_date, end_date, licence_plates):
     print(start_date, end_date, licence_plates)
 
     if licence_plates != None:
-         mapper_.filter_events_on_number_plate(licence_plates)
+         mapper_.filter_events_on_number_plates(licence_plates)
 
     if start_date != None:
         mapper_.filter_events_on_start_date(start_date)

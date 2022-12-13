@@ -49,7 +49,7 @@ def update_map(start_date, end_date, clients):
     print(start_date, end_date, clients)
 
     if clients != None:
-         mapper_.filter_events_on_client(clients)
+         mapper_.filter_events_on_clients(clients)
 
     if start_date != None:
         mapper_.filter_events_on_start_date(start_date)
