@@ -2,18 +2,17 @@ from dash import Dash, html, dcc
 from src.common.data_loader import load_data
 
 def render(id):
-    licence_plates = list(load_data()['number_plate'])
+    clients = list(load_data()['camera_id'].unique())
     #licence_plates = ['NPN22382', 'FNK478GP']
 
     return html.Div(
         children = [
-            html.H6('Choose licence plate'),
+            html.H6('Choose client'),
             dcc.Dropdown(
                 id = id,
-                options=[{'label': licence_plate, 'value': licence_plate} for licence_plate in licence_plates],
+                options=[{'label': client, 'value': client} for client in clients],
                 value = None,
                 multi=True
             )
         ]
     )
-

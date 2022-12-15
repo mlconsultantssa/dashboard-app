@@ -33,9 +33,13 @@ class Mapper:
         self.events = self.events[self.events.apply(filter, axis=1)]
         return self
 
-    def filter_events_on_number_plates(self, number_plates):
-        for number_plate in number_plates:
-            self.filter_events(lambda x: x['number_plate'] == number_plate)
+    def filter_events_on_number_plate(self, number_plate):
+        self.filter_events(lambda x: x['number_plate'] == number_plate)
+        return self
+
+    def filter_events_on_clients(self, clients):
+        for client in clients:
+            self.filter_events(lambda x: x['camera_id'] == client)
         return self
 
     def filter_events_on_start_date(self, start_date):

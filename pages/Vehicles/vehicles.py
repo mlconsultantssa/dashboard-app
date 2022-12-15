@@ -3,7 +3,7 @@ from dash import Dash, html, dcc, callback, Output, Input
 import dash
 import dash_bootstrap_components as dbc
 from .components import licence_plate_dropdown, mapper, date_picker
-from src.data_loader import load_data
+from src.common.data_loader import load_data
 
 from datetime import date
 
@@ -49,7 +49,7 @@ def update_map(start_date, end_date, licence_plates):
     print(start_date, end_date, licence_plates)
 
     if licence_plates != None:
-         mapper_.filter_events_on_number_plate(licence_plates)
+         mapper_.filter_events_on_number_plates(licence_plates)
 
     if start_date != None:
         mapper_.filter_events_on_start_date(start_date)
