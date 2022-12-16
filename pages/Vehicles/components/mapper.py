@@ -1,5 +1,4 @@
-from dash import Dash, html, dcc 
-from datetime import date
+from dash import dcc 
 import pandas as pd
 from shapely.geometry import Point
 from geopandas import GeoDataFrame
