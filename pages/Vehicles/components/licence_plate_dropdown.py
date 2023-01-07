@@ -1,18 +1,23 @@
 from dash import html, dcc 
+from . import ids
 
-def render(id):
+def render():
     licence_plates = []
-
     return html.Div(
         children = [
             html.H6('Choose licence plate'),
-            dcc.Dropdown(
-                id = id,
-                options=[{'label': licence_plate, 'value': licence_plate} 
-                    for licence_plate in licence_plates],
-                value = None,
-                multi=True
+            dcc.Loading(
+                parent_className='loading_wrapper',
+                children=(
+                    dcc.Dropdown(
+                        id = ids.LICENCE_PLATE_DROPDOWN,
+                        options=[],
+                        value = licence_plates,
+                        multi=True
+                    )
+                ),
+                style={'zIndex': 10}
             ),
-            html.Div(id = '{id}-initial-loader')
+            html.Div(id=ids.LICENCE_PLATE_DROPDOWN + '-initial-loader')
         ]
     )

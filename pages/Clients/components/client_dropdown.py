@@ -1,5 +1,5 @@
 from dash import Dash, html, dcc 
-from src.common.data_loader import load_data
+from src.data_loader import load_data
 
 def render(id):
     clients = list(load_data()['camera_id'].unique())

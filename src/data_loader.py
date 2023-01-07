@@ -1,14 +1,22 @@
-from dash import dcc 
 import pandas as pd
 from shapely.geometry import Point
 from geopandas import GeoDataFrame
 import matplotlib as mpl
-import dash_leaflet as dl
 
+def load_data():
+    data_path = '/workspaces/dashboard-app/data/camera_events.csv'
 
-class Mapper:
-    def __init__(self, events):
-        self.events = events.copy()
+    return pd.read_csv(data_path)
+
+def load_distinct_vehicles():
+    data = load_data()
+    vehicle_value_counts = data['number_plate'].value_counts().reset_index()
+
+    return vehicle_value_counts['index'].to_list()
+
+class VehicleEventQueryBuilder:
+    def __init__(self):
+        self.events = load_data().copy()
         self.points = pd.DataFrame({'latitude': [], 'longitude': []})
 
     def clean(self):
@@ -32,9 +40,8 @@ class Mapper:
         self.events = self.events[self.events.apply(filter, axis=1)]
         return self
 
-    def filter_events_on_number_plates(self, number_plates):
-        for number_plate in number_plates:
-            self.filter_events(lambda x: x['number_plate'] == number_plate)
+    def filter_events_on_number_plate(self, number_plate):
+        self.filter_events(lambda x: x['number_plate'] == number_plate[0])
         return self
 
     def filter_events_on_start_date(self, start_date):
@@ -45,31 +52,11 @@ class Mapper:
         self.filter_events(lambda x: x['created_at'] <= end_date)
         return self
 
+    def execute(self):
+        return self.points
+
     def generate_map(self):
         geometry = [Point(xy) for xy in zip(self.points['longitude'], self.points['latitude'])]
-        gdf = GeoDataFrame(self.points, geometry=geometry, crs="epsg:4326") 
+        gdf = GeoDataFrame(self.points, geometry=geometry, crs="epsg:4326")
         return gdf.explore(color=self.points['color'], marker_kwds=dict(radius=10, fill=True), popup=True)
 
-    def get_markers(self):
-        # Create markers from data frame.
-        return [dl.CircleMarker(center=[row['latitude'], row['longitude']], radius=row['size_normalised'] * 20, color=row['color'], fillColor=row['color'], fillOpacity=0.8) for i, row in self.points.iterrows()]  
-
-
-
-def render(id):
-    '''Returns component'''
-    return dcc.Loading(
-    parent_className='loading_wrapper',
-    children=[
-        dl.Map(
-            [dl.TileLayer(), dl.LayerGroup(id=id)],
-            center=[-30, 25], zoom=5,
-            style={'width': '100%', 'height': '500px'}
-        )
-    ],
-    style={'zIndex': 10}
-    )
-
-
-
-    

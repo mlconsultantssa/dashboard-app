@@ -53,7 +53,8 @@ def main() -> None:
     app = Dash(__name__, external_stylesheets=external_stylesheets, use_pages=True)
     app.title = "metagrated"
     app.layout = create_layout(app)
-    app.run_server(port=8050,debug=True)
+
+    app.run_server(port=8000,debug=True)
 
 
 if __name__=="__main__":

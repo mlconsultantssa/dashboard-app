@@ -5,7 +5,7 @@ from dash import Dash, html, dcc, callback, Output, Input
 import dash
 import dash_bootstrap_components as dbc
 from .components import client_dropdown, mapper, date_picker
-from src.common.data_loader import load_data
+from src.data_loader import load_data
 
 from datetime import date
 

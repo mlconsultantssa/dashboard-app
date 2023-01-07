@@ -1,55 +1,80 @@
-from dash import html, callback, Output, Input
+
+from dash import html, callback, Output, Input, State
 import dash
 import dash_bootstrap_components as dbc
-from src.common.data_loader import load_data
-from .components import licence_plate_dropdown, mapper, date_picker
+
+from .components import licence_plate_dropdown, date_picker, ids, vehicle_event_map, filter_store
+from src.db.queries import load_distinct_vehicles, VehicleEventQueryBuilder
+from src.data_processor import VehicleEventDataProcessor
 
 dash.register_page(__name__, name = "Vehicles", path='/vehicles')
 
 layout = html.Div(
     [
+        filter_store.render(),
         dbc.Row(
             [
                 dbc.Col(
-                    licence_plate_dropdown.render(id='licence-plate-dropdown')
+                    licence_plate_dropdown.render()
                 ),
                 dbc.Col(
-                    date_picker.render(id='date-picker')
+                    date_picker.render()
                 )
             ]
         ),
         dbc.Row(
             [
-                mapper.render(id='mapper')
+                vehicle_event_map.render()
             ]
         )
     ]
 )
 
 @callback(
-    Output(component_id='mapper', component_property='children'),
-    Input(component_id='date-picker', component_property='start_date'),
-    Input(component_id='date-picker', component_property='end_date'),
-    Input(component_id='licence-plate-dropdown',component_property='value')
+    Output(ids.LICENCE_PLATE_DROPDOWN, 'options'),
+    Input(ids.LICENCE_PLATE_DROPDOWN + '-initial-loader', 'children')
 )
-def update_map(start_date, end_date, licence_plates):
-    mapper_ = mapper.Mapper(load_data()).clean()
-    print(start_date, end_date, licence_plates)
-
-    if licence_plates is not None:
-        mapper_.filter_events_on_number_plates(licence_plates)
-
-    if start_date is not None:
-        mapper_.filter_events_on_start_date(start_date)
-
-    if end_date is not None:
-        mapper_.filter_events_on_end_date(end_date)
-
-    mapper_.generate_points().generate_color()
-
-    return mapper_.get_markers()
+def initial_load(_):
+    vehicles = load_distinct_vehicles()
+    return vehicles
 
 @callback(
-    Output(component_id='licence-plate-dropdown')
+    Output(ids.FILTER_STORE, 'data'),
+    State(ids.FILTER_STORE, 'data'),
+    Input(ids.LICENCE_PLATE_DROPDOWN, 'value'),
+    Input(ids.DATE_PICKER, 'start_date'),
+    Input(ids.DATE_PICKER, 'end_date'),
 )
-    
+def update_store(data,
+    licence_plate_dropdown_input_value,
+    date_picker_input_start_date,
+    date_picker_input_end_date):
+
+    data['number_plate'] = licence_plate_dropdown_input_value or ''
+    data['start_date'] = date_picker_input_start_date or ''
+    data['end_date'] = date_picker_input_end_date or ''
+
+    return data
+
+@callback(
+    Output(ids.MAP_GROUP_LAYER, 'children'),
+    Input(ids.FILTER_STORE, 'data')
+    )
+def update_map(input_value):
+    vehicle_event_query_builder = VehicleEventQueryBuilder()
+
+    if input_value['number_plate'] != '':
+        print(input_value['number_plate'])
+        vehicle_event_query_builder.filter_events_on_number_plate(input_value['number_plate'])
+
+    if input_value['start_date'] != '':
+        vehicle_event_query_builder.filter_events_on_start_date(input_value['start_date'])
+
+    if input_value['end_date'] != '':
+        vehicle_event_query_builder.filter_events_on_end_date(input_value['end_date'])
+
+    camera_events = vehicle_event_query_builder.execute()
+    vehicle_event_data_processor = VehicleEventDataProcessor(camera_events)
+
+    vehicle_event_data_processor.fix_bad_coordinates().generate_points()
+    return vehicle_event_map.generate_markers(vehicle_event_data_processor.events)

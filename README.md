@@ -13,5 +13,6 @@ An analytics dashboard for project Charizard.
 
 <br />
 
+pip install -r ./requirements.txt
 python -m pip install -e .
 
