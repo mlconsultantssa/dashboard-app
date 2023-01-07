@@ -5,6 +5,7 @@ from shapely.geometry import Point
 from geopandas import GeoDataFrame
 import matplotlib as mpl
 import dash_leaflet as dl
+import logging 
 
 
 class Mapper:
@@ -13,19 +14,22 @@ class Mapper:
         self.points = pd.DataFrame({'latitude': [], 'longitude': []})
 
     def clean(self):
+        print(f'data frame before cleaning: {self.events.columns}')
         self.events = self.events[(self.events['latitude'] > 1) | (self.events['latitude'] < 0)]
         events_with_neg_longitude = self.events['longitude'] < 0
         self.events.loc[events_with_neg_longitude, ['latitude', 'longitude']] = (self.events.loc[events_with_neg_longitude, ['longitude', 'latitude']].values)
+        print(f'data frame after cleaning: {self.events.columns}')
         return self
 
     def generate_points(self):
+        print(f'events columns in generate_points: {self.events.columns}')
         self.points = self.events.groupby(['latitude', 'longitude']).size().to_frame('size').reset_index()
+        self.points['size_normalised'] = (self.points['size'] - self.points['size'].min()) / (self.points['size'].max() - self.points['size'].min())
         self.points['color'] = 'blue'
         return self
 
     def generate_color(self, cmap='plasma'):
         cmap = mpl.cm.get_cmap(cmap)
-        self.points['size_normalised'] = (self.points['size'] - self.points['size'].min()) / (self.points['size'].max() - self.points['size'].min())
         self.points['color'] = self.points.apply(lambda x: (mpl.colors.to_hex(cmap(x['size_normalised']))), axis=1)
         return self
 
@@ -34,12 +38,11 @@ class Mapper:
         return self
 
     def filter_events_on_number_plate(self, number_plate):
-        self.filter_events(lambda x: x['number_plate'] == number_plate)
+        self.events = self.events.loc[self.events['number_plate'].isin(number_plate)]
         return self
 
     def filter_events_on_clients(self, clients):
-        for client in clients:
-            self.filter_events(lambda x: x['camera_id'] == client)
+        self.events = self.events.loc[self.events['camera_id'].isin(clients)]
         return self
 
     def filter_events_on_start_date(self, start_date):
@@ -51,6 +54,7 @@ class Mapper:
         return self
 
     def generate_map(self):
+        
         geometry = [Point(xy) for xy in zip(self.points['longitude'], self.points['latitude'])]
         gdf = GeoDataFrame(self.points, geometry=geometry, crs="epsg:4326") 
         return gdf.explore(color=self.points['color'], marker_kwds=dict(radius=10, fill=True), popup=True)
