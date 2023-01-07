@@ -30,6 +30,9 @@ layout = html.Div(
             [
                 dbc.Col(
                     mapper.render(id='mapper-client')
+                ),
+                dbc.Col(
+                    camera_number_estimate.render(id='client_cam_count')
                 )
             ]
         )
@@ -49,7 +52,8 @@ def update_map(start_date, end_date, clients):
     print(start_date, end_date, clients)
 
     if clients != None:
-         mapper_.filter_events_on_clients(clients)
+        clients = [int(i[-2:].replace('-', '')) for i in clients]
+        mapper_.filter_events_on_clients(clients)
 
     if start_date != None:
         mapper_.filter_events_on_start_date(start_date)
@@ -57,7 +61,7 @@ def update_map(start_date, end_date, clients):
     if end_date != None:
         mapper_.filter_events_on_end_date(end_date)
 
-    mapper_.generate_points().generate_color()
+    mapper_.generate_points()
 
     return mapper_.get_markers()
 

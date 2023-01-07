@@ -2,8 +2,8 @@ from dash import Dash, html, dcc
 from src.data_loader import load_data
 
 def render(id):
-    clients = list(load_data()['camera_id'].unique())
-    #licence_plates = ['NPN22382', 'FNK478GP']
+    #clients = list(load_data()['camera_id'].unique())
+    clients = ['one-space-11', 'vumacam-14', 'itrack-21', 'navic-5', '-20', '-9', 'alpha-security-group-12', '-7', '-10', 'watcher-22', '-17', 'nimbus-24', 'cloudsell-25', '-8', 'maxi-security-18' ]
 
     return html.Div(
         children = [
