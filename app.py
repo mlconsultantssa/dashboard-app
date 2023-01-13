@@ -1,10 +1,8 @@
 #https://towardsdatascience.com/beginners-guide-to-building-a-multi-page-dashboard-using-dash-5d06dbfc7599
 
-
-from dash import Dash, html, dcc
+from dash import Dash, html
 import dash
 import dash_bootstrap_components as dbc
-
 
 dropdown = dbc.DropdownMenu(
     children=[
@@ -44,12 +42,6 @@ def create_layout(app: Dash) -> html.Div:
         [
             dropdown,
             html.Hr()
-            # html.Div(
-            #     dcc.Link(
-            #         f"{page['name']} - {page['path']}", href=page["relative_path"]
-            #     )
-            # )
-            # for page in dash.page_registry.values()
         ]
     ),
 
@@ -61,7 +53,8 @@ def main() -> None:
     app = Dash(__name__, external_stylesheets=external_stylesheets, use_pages=True)
     app.title = "metagrated"
     app.layout = create_layout(app)
-    app.run_server(port=8050,debug=True)
+
+    app.run_server(port=8005,debug=True)
 
 
 if __name__=="__main__":

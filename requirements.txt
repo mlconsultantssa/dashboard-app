@@ -4,3 +4,6 @@ dash-leaflet
 shapely
 geopandas
 matplotlib
+flask_sqlalchemy
+psycopg2
+tqdm

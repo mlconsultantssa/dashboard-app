@@ -1,6 +1,6 @@
-from dash import Dash, html, dcc 
-from datetime import date
+from dash import dcc 
+from . import ids
 
-def render(id):
-    return dcc.DatePickerRange(id = id, style={'padding': '20px 0px', 'zIndex': 20})
+def render():
+    return dcc.DatePickerRange(id=ids.DATE_PICKER, style={'padding': '20px 0px', 'zIndex': 20})
     
