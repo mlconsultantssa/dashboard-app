@@ -1,17 +1,13 @@
 #https://www.youtube.com/watch?v=XOFrvzWFM7Y
 
 
-from dash import Dash, html, dcc, callback, Output, Input
+from dash import html, callback, Output, Input
 import dash
 import dash_bootstrap_components as dbc
-from .components import client_dropdown, mapper, date_picker
-from src.data_loader import load_data
+from .components import client_camera_map, client_dropdown, date_picker, camera_number_estimate
+from src.db.queries import ClientCameraQueryBuilder
+from src.data_processor import ClientCameraDataProcessor
 
-from datetime import date
-
-from dash import Dash, html, dcc 
-
-from datetime import date
 dash.register_page(__name__, name = 'Clients', path='/clients')
 
 layout = html.Div(
@@ -29,7 +25,7 @@ layout = html.Div(
         dbc.Row(
             [
                 dbc.Col(
-                    mapper.render(id='mapper-client')
+                    client_camera_map.render(id='mapper-client')
                 ),
                 dbc.Col(
                     camera_number_estimate.render(id='client_cam_count')
@@ -39,8 +35,6 @@ layout = html.Div(
     ]
 )
 
-
-#https://dash.plotly.com/basic-callbacks
 @callback(
     Output(component_id='mapper-client', component_property='children'),
     Input(component_id='date-picker-client', component_property='start_date'),
@@ -48,20 +42,21 @@ layout = html.Div(
     Input(component_id='client-dropdown',component_property='value')
 )
 def update_map(start_date, end_date, clients):
-    mapper_ = mapper.Mapper(load_data()).clean()
-    print(start_date, end_date, clients)
+    client_camera_query_builder = ClientCameraQueryBuilder()
 
-    if clients != None:
-        clients = [int(i[-2:].replace('-', '')) for i in clients]
-        mapper_.filter_events_on_clients(clients)
+    if clients:
+        clients = [i[-2:].replace('-', '') for i in clients]
+        client_camera_query_builder.filter_events_on_clients(clients)
 
-    if start_date != None:
-        mapper_.filter_events_on_start_date(start_date)
+    if start_date:
+        client_camera_query_builder.filter_events_on_start_date(start_date)
 
-    if end_date != None:
-        mapper_.filter_events_on_end_date(end_date)
+    if end_date:
+        client_camera_query_builder.filter_events_on_end_date(end_date)
 
-    mapper_.generate_points()
+    camera_events = client_camera_query_builder.execute()
+    client_camer_data_processor = ClientCameraDataProcessor(camera_events)
 
-    return mapper_.get_markers()
+    client_camer_data_processor.fix_bad_coordinates().generate_points()
+    return client_camera_map.generate_markers(client_camer_data_processor.events)
 

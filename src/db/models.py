@@ -8,5 +8,6 @@ class CameraEvent(Base):
     id = Column(Integer, primary_key=True)
     number_plate = Column(String)
     created_at = Column(String)
+    camera_id = Column(String)
     latitude = Column(Float)
     longitude = Column(Float)

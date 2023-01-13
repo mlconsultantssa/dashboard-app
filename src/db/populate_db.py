@@ -1,8 +1,6 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
 import pandas as pd
-from tqdm import tqdm
-from models import CameraEvent
 
 Base = declarative_base()
 
@@ -22,16 +20,9 @@ recreate_database(engine)
 Session = sessionmaker(bind=engine)
 s = Session()
 
-df = load_data()
+df = load_data()[['number_plate', 'created_at', 'camera_id', 'latitude', 'longitude']]
 
-for ind in tqdm(df.index):
-    camera_event = CameraEvent(
-        number_plate = df['number_plate'][ind],
-        created_at = df['created_at'][ind],
-        latitude = df['latitude'][ind],
-        longitude = df['longitude'][ind]
-        )
-    s.add(camera_event)
+df.to_sql('camera-events', engine, if_exists='append', index=False)
 
 s.commit()
 
