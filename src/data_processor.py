@@ -31,10 +31,10 @@ class ClientCameraDataProcessor:
         events_with_neg_longitude = self.events['longitude'] < 0
 
         self.events.loc[events_with_neg_longitude, ['latitude', 'longitude']] = (self.events.loc[events_with_neg_longitude, ['longitude', 'latitude']].values)
+        self.events = self.events.groupby(['latitude', 'longitude']).agg({'camera_id': 'first', 'latitude': 'first', 'longitude': 'first', 'size': 'sum'})
         return self
 
     def generate_points(self):
-        self.events = self.events.groupby(['latitude', 'longitude']).agg({'camera_id': 'first', 'latitude': 'first', 'longitude': 'first', 'size': 'sum'})
         self.events['color'] = 'blue'
         self.events['size_normalised'] = (self.events['size'] - self.events['size'].min()) / (self.events['size'].max() - self.events['size'].min())
         return self
