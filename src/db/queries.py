@@ -1,5 +1,5 @@
 import pandas as pd
-from sqlalchemy import create_engine, func, or_, desc
+from sqlalchemy import create_engine, func, or_, desc, distinct
 from sqlalchemy.orm import declarative_base, sessionmaker
 from src.db.models import CameraEvent
 
@@ -7,7 +7,7 @@ Base = declarative_base()
 
 class VehicleEventQueryBuilder:
     def __init__(self):
-        engine = create_engine('postgresql+psycopg2://postgres:toothpick@host.docker.internal:5432/metagrated-dev', echo=True)
+        engine = create_engine('postgresql+psycopg2://postgres:AIGenius104@localhost:5432/metagrated-dev', echo=True)
         self.session = sessionmaker(bind=engine)()
         self.flist = []
         self.query = self.session.query(CameraEvent.latitude, CameraEvent.longitude, func.count('*'))
@@ -44,7 +44,7 @@ class VehicleEventQueryBuilder:
 
 class ClientCameraQueryBuilder:
     def __init__(self):
-        engine = create_engine('postgresql+psycopg2://postgres:toothpick@host.docker.internal:5432/metagrated-dev', echo=True)
+        engine = create_engine('postgresql+psycopg2://postgres:AIGenius104@localhost:5432/metagrated-dev', echo=True)
         self.session = sessionmaker(bind=engine)()
         self.flist = []
         self.query = self.session.query(CameraEvent.camera_id, CameraEvent.latitude, CameraEvent.longitude, func.count('*'))
@@ -65,6 +65,12 @@ class ClientCameraQueryBuilder:
         self.flist.append(CameraEvent.created_at <= end_date)
         return self
 
+    def load_camera_count(self):
+        self.filter_out_bad_events()
+        camera_event_value_counts = self.session.query().distinct(CameraEvent.latitude, CameraEvent.longitude).count()
+
+        return camera_event_value_counts
+
     def execute(self):
         self.filter_out_bad_events()
         camera_events = self.query\
@@ -80,11 +86,30 @@ class ClientCameraQueryBuilder:
         self.session.close()
 
 def load_distinct_vehicles():
-        engine = create_engine('postgresql+psycopg2://postgres:toothpick@host.docker.internal:5432/metagrated-dev', echo=True)
+        engine = create_engine('postgresql+psycopg2://postgres:AIGenius104@localhost:5432/metagrated-dev', echo=True)
         session = sessionmaker(bind=engine)()
         camera_event_value_counts = session.query(CameraEvent.number_plate, func.count('*').label('size'))\
             .group_by(CameraEvent.number_plate)\
             .order_by(desc('size'))\
+            .limit(100)\
             .all()
 
         return [i[0] for i in camera_event_value_counts]
+
+def load_missing_url_count(client_id):
+        engine = create_engine('postgresql+psycopg2://postgres:AIGenius104@localhost:5432/metagrated-dev', echo=True)
+        session = sessionmaker(bind=engine)()
+        camera_event_value_counts = session.query(func.count(not CameraEvent.image_url), func.count(CameraEvent.image_url))\
+            .filter(CameraEvent.camera_id == client_id)\
+            .all()
+
+        return camera_event_value_counts[0]
+
+def load_missing_location_count(client_id):
+        engine = create_engine('postgresql+psycopg2://postgres:AIGenius104@localhost:5432/metagrated-dev', echo=True)
+        session = sessionmaker(bind=engine)()
+        camera_event_value_counts = session.query(func.count(not CameraEvent.latitude), func.count(CameraEvent.latitude))\
+            .filter(CameraEvent.camera_id == client_id)\
+            .all()
+
+        return camera_event_value_counts[0]

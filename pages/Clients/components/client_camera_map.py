@@ -16,6 +16,7 @@ def render(id):
 
 def generate_markers(data):
     # Create markers from data frame.
+    # https://www.youtube.com/watch?v=OVggxyO81CQ
     return [
         dl.CircleMarker(center=[row['latitude'],
         row['longitude']],

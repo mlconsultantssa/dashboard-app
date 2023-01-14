@@ -11,3 +11,4 @@ class CameraEvent(Base):
     camera_id = Column(String)
     latitude = Column(Float)
     longitude = Column(Float)
+    image_url = Column(String)
