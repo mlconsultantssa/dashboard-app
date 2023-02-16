@@ -7,3 +7,4 @@ matplotlib
 flask_sqlalchemy
 psycopg2 #psycopg2-binary 
 tqdm
+dash[diskcache]

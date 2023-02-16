@@ -1,6 +1,7 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
 import pandas as pd
+import src.db.config as config
 
 Base = declarative_base()
 
@@ -9,11 +10,11 @@ def recreate_database(engine):
     Base.metadata.create_all(engine)
 
 def load_data():
-    data_path = '/Users/dylan.geldenhuys/mlc/dashboard-app/data/camera_events.csv'
+    data_path = config.DATA_PATH
 
     return pd.read_csv(data_path)
 
-engine = create_engine('postgresql+psycopg2://postgres:AIGenius104@localhost:5432/metagrated-dev', echo=True)
+engine = create_engine(config.CONNECTION_STRING, echo=True)
 
 recreate_database(engine)
 

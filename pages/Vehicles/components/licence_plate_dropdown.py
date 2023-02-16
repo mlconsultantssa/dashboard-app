@@ -2,7 +2,7 @@ from dash import html, dcc
 from . import ids
 
 def render():
-    licence_plates = []
+    licence_plates = ['JD79WMGP']
     return html.Div(
         children = [
             html.H6('Choose licence plate'),

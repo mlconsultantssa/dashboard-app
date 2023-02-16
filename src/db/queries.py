@@ -1,13 +1,14 @@
 import pandas as pd
-from sqlalchemy import create_engine, func, or_, desc, distinct
+from sqlalchemy import create_engine, func, or_, desc, cast, DateTime, Time
 from sqlalchemy.orm import declarative_base, sessionmaker
 from src.db.models import CameraEvent
+import src.db.config as config
 
 Base = declarative_base()
 
 class VehicleEventQueryBuilder:
     def __init__(self):
-        engine = create_engine('postgresql+psycopg2://postgres:AIGenius104@localhost:5432/metagrated-dev', echo=True)
+        engine = create_engine(config.CONNECTION_STRING)
         self.session = sessionmaker(bind=engine)()
         self.flist = []
         self.query = self.session.query(CameraEvent.latitude, CameraEvent.longitude, func.count('*'))
@@ -44,7 +45,7 @@ class VehicleEventQueryBuilder:
 
 class ClientCameraQueryBuilder:
     def __init__(self):
-        engine = create_engine('postgresql+psycopg2://postgres:AIGenius104@localhost:5432/metagrated-dev', echo=True)
+        engine = create_engine(config.CONNECTION_STRING)
         self.session = sessionmaker(bind=engine)()
         self.flist = []
         self.query = self.session.query(CameraEvent.camera_id, CameraEvent.latitude, CameraEvent.longitude, func.count('*'))
@@ -86,7 +87,7 @@ class ClientCameraQueryBuilder:
         self.session.close()
 
 def load_distinct_vehicles():
-        engine = create_engine('postgresql+psycopg2://postgres:AIGenius104@localhost:5432/metagrated-dev', echo=True)
+        engine = create_engine(config.CONNECTION_STRING)
         session = sessionmaker(bind=engine)()
         camera_event_value_counts = session.query(CameraEvent.number_plate, func.count('*').label('size'))\
             .group_by(CameraEvent.number_plate)\
@@ -97,7 +98,7 @@ def load_distinct_vehicles():
         return [i[0] for i in camera_event_value_counts]
 
 def load_missing_url_count(client_id):
-        engine = create_engine('postgresql+psycopg2://postgres:AIGenius104@localhost:5432/metagrated-dev', echo=True)
+        engine = create_engine(config.CONNECTION_STRING)
         session = sessionmaker(bind=engine)()
         camera_event_value_counts = session.query(func.count(not CameraEvent.image_url), func.count(CameraEvent.image_url))\
             .filter(CameraEvent.camera_id == client_id)\
@@ -106,10 +107,54 @@ def load_missing_url_count(client_id):
         return camera_event_value_counts[0]
 
 def load_missing_location_count(client_id):
-        engine = create_engine('postgresql+psycopg2://postgres:AIGenius104@localhost:5432/metagrated-dev', echo=True)
+        engine = create_engine(config.CONNECTION_STRING)
         session = sessionmaker(bind=engine)()
         camera_event_value_counts = session.query(func.count(not CameraEvent.latitude), func.count(CameraEvent.latitude))\
             .filter(CameraEvent.camera_id == client_id)\
             .all()
 
         return camera_event_value_counts[0]
+
+def load_vehicle_histogram_data(latitude, longitude):
+        engine = create_engine(config.CONNECTION_STRING)
+        session = sessionmaker(bind=engine)()
+        result = session.query(func.date_trunc('year', cast(CameraEvent.created_at, DateTime)).label('year'),
+            func.date_trunc('month', cast(CameraEvent.created_at, DateTime)).label('month'),
+            func.date_trunc('day', cast(CameraEvent.created_at, DateTime)).label('day'),
+            func.count('*').label('size'))\
+                .filter(CameraEvent.longitude == longitude)\
+                .filter(CameraEvent.latitude == latitude)\
+                .group_by('year', 'month', 'day')\
+                .all()
+
+        return result
+
+def load_daily_vehicle_histogram_data(latitude, longitude):
+        engine = create_engine(config.CONNECTION_STRING)
+        session = sessionmaker(bind=engine)()
+        result = session.query(cast(func.date_trunc('hour', cast(CameraEvent.created_at, DateTime)), Time).label('hour'),
+            func.count('*').label('size'))\
+                .filter(CameraEvent.longitude == longitude)\
+                .filter(CameraEvent.latitude == latitude)\
+                .group_by('hour')\
+                .all()
+
+        return result
+
+def load_all_events(latitude, longitude, start_date, end_date, number_plates):
+        engine = create_engine(config.CONNECTION_STRING)
+        session = sessionmaker(bind=engine)()
+        queries = []
+        if start_date:
+            queries.append(CameraEvent.created_at >= start_date)
+        if end_date:
+            queries.append(CameraEvent.created_at <= end_date)   
+        if number_plates:
+            queries.append(CameraEvent.number_plate.in_(number_plates))
+        result = session.query(CameraEvent.latitude, CameraEvent.longitude, CameraEvent.number_plate)\
+                .filter(or_(CameraEvent.longitude == longitude, CameraEvent.longitude == latitude))\
+                .filter(or_(CameraEvent.latitude == latitude, CameraEvent.latitude == longitude))\
+                .filter(*queries)\
+                .all()
+
+        return result

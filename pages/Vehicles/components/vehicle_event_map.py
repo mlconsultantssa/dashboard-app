@@ -18,9 +18,18 @@ def render():
 def generate_markers(data):
     # Create markers from data frame.
     return [
-        dl.CircleMarker(center=[row['latitude'],
+        dl.CircleMarker(
+        children=[
+            dl.Popup(row['size'])
+
+        ],
+        id={
+            'type': 'circle-marker',
+            'index': f"{row['latitude']}_{row['longitude']}"
+            },
+        center=[row['latitude'],
         row['longitude']],
-        radius=row['size_normalised'] * 20,
+        radius=row['size_normalised'] * 50,
         color=row['color'], fillColor=row['color'],
         fillOpacity=0.8) for i, row in data.iterrows()
     ]

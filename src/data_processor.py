@@ -15,6 +15,7 @@ class VehicleEventDataProcessor:
         self.events = self.events.groupby(['latitude', 'longitude']).agg({'latitude': 'first', 'longitude': 'first', 'size': 'sum'})
         self.events['color'] = 'blue'
         self.events['size_normalised'] = (self.events['size'] - self.events['size'].min()) / (self.events['size'].max() - self.events['size'].min())
+        self.events['size_normalised'] = self.events['size_normalised'].fillna(1).clip(0.1, 1)
         return self
 
     # def generate_color(self, cmap='plasma'):

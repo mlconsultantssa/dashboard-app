@@ -5,7 +5,7 @@ from dash import html, callback, Output, Input, dcc
 import dash
 import dash_bootstrap_components as dbc
 from .components import client_camera_map, client_dropdown, date_picker, camera_number_estimate, client_nan_graph
-from src.db.queries import ClientCameraQueryBuilder
+from src.db.queries import ClientCameraQueryBuilder, load_missing_url_count, load_missing_location_count
 from src.data_processor import ClientCameraDataProcessor
 
 dash.register_page(__name__, name = 'Clients', path='/clients')
@@ -69,7 +69,7 @@ def update_map(start_date, end_date, clients):
     Input(component_id='date-picker-client', component_property='end_date'),
     Input(component_id='client-dropdown',component_property='value')
 )
-def update_map(start_date, end_date, clients):
+def update_client_cam_count(start_date, end_date, clients):
     client_camera_query_builder = ClientCameraQueryBuilder()
 
     if clients:
@@ -87,4 +87,47 @@ def update_map(start_date, end_date, clients):
 
     count = len(client_camer_data_processor.fix_bad_coordinates().events)
     return count
+
+@callback(
+    Output(component_id='client_nan_graph', component_property='figure'),
+    Input(component_id='client_nan_graph-initial-loader', component_property='children')
+)
+def update_client_nan_graph(_):
+    clients = ['one-space-11', 'vumacam-14', 'itrack-21', 'navic-5', '-20', '-9', 'alpha-security-group-12', '-7', '-10', 'watcher-22', '-17', 'nimbus-24', 'cloudsell-25', '-8', 'maxi-security-18' ]
+    
+    missing_urls = {'x': [], 'y': [], 'type': 'bar', 'name': 'Proportion missing image_url'}
+    missing_locations = {'x': [], 'y': [], 'type': 'bar', 'name': 'Proportion missing locations'}
+
+    tickvals = []
+    ticktext = []
+
+    client_ids = [i[-2:].replace('-', '') for i in clients]
+    for i, client_id in enumerate(client_ids):
+        tickvals.append(i)
+        ticktext.append(client_id)
+
+        counts_missing, counts_whole = load_missing_url_count(client_id)
+        perc = counts_missing/(counts_whole + counts_missing)
+        missing_urls['x'].append(i)
+        missing_urls['y'].append(perc)
+
+        counts_missing, counts_whole = load_missing_location_count(client_id)
+        perc = counts_missing/(counts_whole + counts_missing)
+        missing_locations['x'].append(i)
+        missing_locations['y'].append(perc)
+
+    return {
+            'data': [
+                missing_urls,
+                missing_locations
+            ],
+            'layout': {
+                'title': 'Dash Data Visualization',
+                'xaxis': {
+                    'tickmode' : 'array',
+                    'tickvals' : tickvals,
+                    'ticktext' : ticktext
+                }
+            }
+        }
 
