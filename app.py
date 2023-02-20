@@ -9,6 +9,7 @@ dropdown = dbc.DropdownMenu(
         dbc.DropdownMenuItem("Home", href="/"),
         dbc.DropdownMenuItem("Vehicles", href="/vehicles"),
         dbc.DropdownMenuItem("Clients", href="/clients"),
+        dbc.DropdownMenuItem("EventTrail", href="/eventtrail"),
     ],
     nav = True,
     in_navbar = True,
