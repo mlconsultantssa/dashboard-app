@@ -19,6 +19,10 @@ def generate_markers(data):
     # Create markers from data frame.
     return [
         dl.CircleMarker(
+        id={
+            'type': ids.CIRCLE_MARKER,
+            'index': row['id']
+            },
         center=[row['latitude'],
         row['longitude']],
         radius=5,
