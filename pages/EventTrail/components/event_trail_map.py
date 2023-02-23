@@ -21,10 +21,10 @@ def generate_markers(data):
         dl.CircleMarker(
         id={
             'type': ids.CIRCLE_MARKER,
-            'index': row['id']
+            'index': row['created_at']
             },
         center=[row['latitude'],
-        row['longitude']],
+            row['longitude']],
         radius=5,
         fillOpacity=0.8) for i, row in data.iterrows()
     ]

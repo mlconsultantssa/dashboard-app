@@ -1,7 +1,8 @@
 
-from dash import html, callback, Output, Input, ctx, State, MATCH, ALL, no_update, dcc, DiskcacheManager
+from dash import html, callback, Output, Input, ctx, State, MATCH, ALL, no_update, dcc, DiskcacheManager, callback_context
 import dash
 import dash_bootstrap_components as dbc
+import datetime
 
 import diskcache
 cache = diskcache.Cache("./cache")
@@ -26,7 +27,7 @@ layout = html.Div(
             ]
         ),
         dbc.Row([
-            dcc.Slider(0, 20)
+            dcc.Slider(0, 10, step=1, id=ids.SLIDER)
         ]),
         dbc.Row(
             [
@@ -55,3 +56,29 @@ def update_map(date, number_plate):
     if (number_plate and date):
         data = fix_bad_coordinates(load_event_trail_data(number_plate, date))
         return event_trail_map.generate_markers(data)
+
+@callback(
+    Output(ids.SLIDER, 'max'),
+    #Output(ids.SLIDER, 'marks'),
+    Input(component_id=ids.DATE_PICKER, component_property='date'),
+    Input(component_id=ids.LICENCE_PLATE_DROPDOWN, component_property='value')
+)
+def update_slider(date, number_plate):
+    if (number_plate and date):
+        data = fix_bad_coordinates(load_event_trail_data(number_plate, date))
+
+        return len(data)
+
+@callback(
+    Input(ids.SLIDER, 'value'),
+    output=dict(
+        radius=Output({'type': ids.CIRCLE_MARKER, 'index': ALL}, 'radius')
+    )
+    )
+def update_circle_marker(value):
+    print(callback_context.outputs_list[0])
+    outputs = len(callback_context.outputs_grouping['radius'])
+    result = [5 for _ in range(outputs)]
+    result[value or 0] = 20
+    return {'radius': result}
+

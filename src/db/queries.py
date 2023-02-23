@@ -163,11 +163,12 @@ def load_all_events(latitude, longitude, start_date, end_date, number_plates):
 def load_event_trail_data(number_plate, date):
     engine = create_engine(config.CONNECTION_STRING)
     session = sessionmaker(bind=engine)()
-    result = session.query(CameraEvent.latitude, CameraEvent.longitude)\
+    result = session.query(CameraEvent.created_at, CameraEvent.latitude, CameraEvent.longitude)\
         .filter(or_(CameraEvent.latitude > 1, CameraEvent.latitude < 0))\
         .filter(cast(CameraEvent.created_at, DateTime) >= cast(datetime.datetime.strptime(date, "%Y-%m-%d") - datetime.timedelta(days=5), DateTime))\
         .filter(cast(CameraEvent.created_at, DateTime) >= cast(datetime.datetime.strptime(date, "%Y-%m-%d") + datetime.timedelta(days=5), DateTime))\
         .filter(CameraEvent.number_plate == number_plate)\
+        .order_by(CameraEvent.created_at)\
         .all()
 
-    return pd.DataFrame.from_records(result, columns=['latitude', 'longitude'])
+    return pd.DataFrame.from_records(result, columns=['created_at', 'latitude', 'longitude'])
