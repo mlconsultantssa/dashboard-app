@@ -72,13 +72,26 @@ def update_slider(date, number_plate):
 @callback(
     Input(ids.SLIDER, 'value'),
     output=dict(
-        radius=Output({'type': ids.CIRCLE_MARKER, 'index': ALL}, 'radius')
-    )
+            color=Output({'type': ids.CIRCLE_MARKER, 'index': ALL}, 'color')
+        )
     )
 def update_circle_marker(value):
-    print(callback_context.outputs_list[0])
+    outputs = len(callback_context.outputs_grouping['color'])
+    result_color = ["blue" for _ in range(outputs)]
+    if(value):
+        result_color[value] = "red"
+    return {'color': result_color}
+
+@callback(
+    Input(ids.SLIDER, 'value'),
+    output=dict(
+            radius=Output({'type': ids.CIRCLE_MARKER, 'index': ALL}, 'radius')
+        )
+    )
+def update_circle_marker_radius(value):
     outputs = len(callback_context.outputs_grouping['radius'])
-    result = [5 for _ in range(outputs)]
-    result[value or 0] = 20
-    return {'radius': result}
+    result_radius = [10 for _ in range(outputs)]
+    if(value):
+        result_radius[value] = 20
+    return {'radius': result_radius}
 

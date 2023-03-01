@@ -25,6 +25,6 @@ def generate_markers(data):
             },
         center=[row['latitude'],
             row['longitude']],
-        radius=5,
+        fillColor="blue",
         fillOpacity=0.8) for i, row in data.iterrows()
     ]
