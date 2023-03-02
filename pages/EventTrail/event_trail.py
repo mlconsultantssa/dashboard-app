@@ -30,13 +30,17 @@ layout = html.Div(
                 )
             ]
         ),
-        dbc.Row([
-            
-            dcc.Slider(0, 10, step=1, id=ids.SLIDER, vertical=True, tooltip={"always_visible": True})
-        ]),
         dbc.Row(
             [
-                event_trail_map.render(ids.MAP_GROUP_LAYER)
+                dbc.Col(
+                    event_trail_map.render(ids.MAP_GROUP_LAYER),
+                    width=8
+                ), 
+                dbc.Col(
+                    dcc.Slider(0, 10, step=1, id=ids.SLIDER, vertical=True, tooltip={"always_visible": True}),
+                    width=4
+                )
+                
             ]
         ),
     ]
@@ -77,24 +81,11 @@ def update_slider(date, number_plate):
         dates = list(data["created_at"])
         markers = {}
         for i in range(len(data)):
-            markers[i] = {'label': dates[i][:]}
-        print(markers)
+            markers[i] = {'label': dates[i][:], 'style': {'writing-mode': 'horizontal-rl', 'text-orientation': 'upright', 'margin-top': '1000px', "white-space":"nowrap"}}
+        
         #print(f'event trail data {list(data["created_at"])}')
         return len(data) - 1, markers
-
-@callback(
-    Input(ids.SLIDER, 'value'),
-    output=dict(
-            color=Output({'type': ids.CIRCLE_MARKER, 'index': ALL}, 'color')
-        )
-    )
-def update_circle_marker(value):
-    outputs = len(callback_context.outputs_grouping['color'])
-    result_color = ["blue" for _ in range(outputs)]
-    if(value):
-        result_color[value] = "red"
-    return {'color': result_color}
-
+    
 @callback(
     Input(ids.SLIDER, 'value'),
     output=dict(
@@ -106,5 +97,44 @@ def update_circle_marker_radius(value):
     result_radius = [10 for _ in range(outputs)]
     if(value):
         result_radius[value] = 20
+    print(result_radius)
     return {'radius': result_radius}
+
+@callback(
+    Input(ids.SLIDER, 'value'),
+    output=dict(
+            color=Output({'type': ids.CIRCLE_MARKER, 'index': ALL}, 'color')
+        )
+    )
+def update_circle_marker(value):
+    outputs = len(callback_context.outputs_grouping['color'])
+    result_color = ["blue" for _ in range(outputs)]
+    print(result_color)
+    print(value)
+    if(value):
+        result_color[value] = "red"
+    print(result_color)
+    return {'color': result_color}
+
+    
+# @callback(
+#     [Output({'type': ids.CIRCLE_MARKER, 'index': ALL}, 'radius'),
+#     Output({'type': ids.CIRCLE_MARKER, 'index': ALL}, 'color')],
+#     [Input(ids.SLIDER, 'value')])
+# def update_circle_marker_radius(value):
+#     outputs_radius = len(callback_context.outputs_grouping['radius'])
+#     result_radius = [10 for _ in range(outputs_radius)]
+#     if(value):
+#         result_radius[value] = 20
+#     print(result_radius)
+
+#     outputs_color = len(callback_context.outputs_grouping['color'])
+#     result_color = ["blue" for _ in range(outputs_color)]
+#     print(result_color)
+#     print(value)
+#     if(value):
+#         result_color[value] = "red"
+#     return {'radius': result_radius}, {'color': result_color}
+
+
 
