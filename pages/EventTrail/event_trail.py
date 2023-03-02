@@ -11,6 +11,10 @@ background_callback_manager = DiskcacheManager(cache)
 from .components import licence_plate_dropdown, date_picker, ids, event_trail_map
 from src.db.queries import load_distinct_vehicles, load_event_trail_data
 from src.data_processor import fix_bad_coordinates
+import logging
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 dash.register_page(__name__, name = "EventTrail", path='/eventtrail')
 
@@ -27,7 +31,8 @@ layout = html.Div(
             ]
         ),
         dbc.Row([
-            dcc.Slider(0, 10, step=1, id=ids.SLIDER)
+            
+            dcc.Slider(0, 10, step=1, id=ids.SLIDER, vertical=True, tooltip={"always_visible": True})
         ]),
         dbc.Row(
             [
@@ -58,16 +63,24 @@ def update_map(date, number_plate):
         return event_trail_map.generate_markers(data)
 
 @callback(
-    Output(ids.SLIDER, 'max'),
-    #Output(ids.SLIDER, 'marks'),
-    Input(component_id=ids.DATE_PICKER, component_property='date'),
-    Input(component_id=ids.LICENCE_PLATE_DROPDOWN, component_property='value')
+    [Output(ids.SLIDER, 'max'),
+    Output(ids.SLIDER, 'marks'),],
+    [Input(component_id=ids.DATE_PICKER, component_property='date'),
+    Input(component_id=ids.LICENCE_PLATE_DROPDOWN, component_property='value')]
 )
 def update_slider(date, number_plate):
     if (number_plate and date):
-        data = fix_bad_coordinates(load_event_trail_data(number_plate, date))
 
-        return len(data)
+        data = fix_bad_coordinates(load_event_trail_data(number_plate, date))
+        #dates = data.index()
+        logger.debug(f'event trail data {data}')
+        dates = list(data["created_at"])
+        markers = {}
+        for i in range(len(data)):
+            markers[i] = {'label': dates[i][:]}
+        print(markers)
+        #print(f'event trail data {list(data["created_at"])}')
+        return len(data) - 1, markers
 
 @callback(
     Input(ids.SLIDER, 'value'),
