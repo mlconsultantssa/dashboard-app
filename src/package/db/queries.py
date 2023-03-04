@@ -2,8 +2,8 @@ import pandas as pd
 import datetime
 from sqlalchemy import create_engine, func, or_, desc, cast, DateTime, Time
 from sqlalchemy.orm import declarative_base, sessionmaker
-from src.db.models import CameraEvent
-import src.db.config as config
+from package.db.models import CameraEvent
+import package.db.config as config
 
 Base = declarative_base()
 

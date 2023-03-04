@@ -5,8 +5,8 @@ import dash_bootstrap_components as dbc
 import plotly.express as px
 
 from .components import licence_plate_dropdown, date_picker, ids, vehicle_event_map
-from src.db.queries import load_distinct_vehicles, VehicleEventQueryBuilder, load_vehicle_histogram_data, load_daily_vehicle_histogram_data, load_all_events
-from src.data_processor import VehicleEventDataProcessor
+from package.db.queries import load_distinct_vehicles, VehicleEventQueryBuilder, load_vehicle_histogram_data, load_daily_vehicle_histogram_data, load_all_events
+from package.data_processor import VehicleEventDataProcessor
 
 import diskcache
 cache = diskcache.Cache("./cache")
