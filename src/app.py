@@ -54,10 +54,10 @@ def create_layout(app: Dash) -> html.Div:
 def main() -> None:
     external_stylesheets = [dbc.themes.LUX]
     app = Dash(__name__, external_stylesheets=external_stylesheets, use_pages=True)
+    app.run_server(debug=True)
     app.title = "metagrated"
     app.layout = create_layout(app)
-
-    server = app.server #run_server(port=8005,debug=True)
+    app.run_server(port=8006,debug=True)
 
 
 if __name__=="__main__":
