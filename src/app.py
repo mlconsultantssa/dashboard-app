@@ -65,4 +65,4 @@ app = Dash(__name__, external_stylesheets=external_stylesheets, use_pages=True)
 server = app.server
 app.title = "metagrated"
 app.layout = create_layout(app)
-app.run_server(port=8007,debug=True)
+app.run_server(port=8009,debug=True)
