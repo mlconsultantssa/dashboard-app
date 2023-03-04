@@ -60,7 +60,6 @@ def create_layout(app: Dash) -> html.Div:
 #     app.run_server(port=8007,debug=True)
 
 
-
 external_stylesheets = [dbc.themes.LUX]
 app = Dash(__name__, external_stylesheets=external_stylesheets, use_pages=True)
 server = app.server
