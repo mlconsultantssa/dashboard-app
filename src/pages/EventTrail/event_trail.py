@@ -9,8 +9,8 @@ cache = diskcache.Cache("./cache")
 background_callback_manager = DiskcacheManager(cache)
 
 from .components import licence_plate_dropdown, date_picker, ids, event_trail_map
-from src.db.queries import load_distinct_vehicles, load_event_trail_data
-from src.data_processor import fix_bad_coordinates
+from package.db.queries import load_distinct_vehicles, load_event_trail_data
+from package.data_processor import fix_bad_coordinates
 import logging
 
 logger = logging.getLogger(__name__)

@@ -5,8 +5,8 @@ from dash import html, callback, Output, Input, dcc
 import dash
 import dash_bootstrap_components as dbc
 from .components import client_camera_map, client_dropdown, date_picker, camera_number_estimate, client_nan_graph
-from src.db.queries import ClientCameraQueryBuilder, load_missing_url_count, load_missing_location_count
-from src.data_processor import ClientCameraDataProcessor
+from package.db.queries import ClientCameraQueryBuilder, load_missing_url_count, load_missing_location_count
+from package.data_processor import ClientCameraDataProcessor
 
 dash.register_page(__name__, name = 'Clients', path='/clients')
 
