@@ -5,6 +5,7 @@ shapely
 geopandas
 matplotlib
 flask_sqlalchemy
-psycopg2 #psycopg2-binary 
+psycopg2-binary 
 tqdm
 dash[diskcache]
+dash_bootstrap_components
