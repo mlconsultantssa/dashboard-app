@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
 import pandas as pd
-import src.db.config as config
+import package.db.config as config
 
 Base = declarative_base()
 

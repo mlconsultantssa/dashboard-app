@@ -1,8 +1,9 @@
 import pandas as pd
+import datetime
 from sqlalchemy import create_engine, func, or_, desc, cast, DateTime, Time
 from sqlalchemy.orm import declarative_base, sessionmaker
-from src.db.models import CameraEvent
-import src.db.config as config
+from package.db.models import CameraEvent
+import package.db.config as config
 
 Base = declarative_base()
 
@@ -151,10 +152,23 @@ def load_all_events(latitude, longitude, start_date, end_date, number_plates):
             queries.append(CameraEvent.created_at <= end_date)   
         if number_plates:
             queries.append(CameraEvent.number_plate.in_(number_plates))
-        result = session.query(CameraEvent.latitude, CameraEvent.longitude, CameraEvent.number_plate)\
+        result = session.query(CameraEvent.id, CameraEvent.latitude, CameraEvent.longitude, CameraEvent.number_plate)\
                 .filter(or_(CameraEvent.longitude == longitude, CameraEvent.longitude == latitude))\
                 .filter(or_(CameraEvent.latitude == latitude, CameraEvent.latitude == longitude))\
                 .filter(*queries)\
                 .all()
 
         return result
+
+def load_event_trail_data(number_plate, date):
+    engine = create_engine(config.CONNECTION_STRING)
+    session = sessionmaker(bind=engine)()
+    result = session.query(CameraEvent.created_at, CameraEvent.latitude, CameraEvent.longitude)\
+        .filter(or_(CameraEvent.latitude > 1, CameraEvent.latitude < 0))\
+        .filter(cast(CameraEvent.created_at, DateTime) >= cast(datetime.datetime.strptime(date, "%Y-%m-%d") - datetime.timedelta(days=5), DateTime))\
+        .filter(cast(CameraEvent.created_at, DateTime) >= cast(datetime.datetime.strptime(date, "%Y-%m-%d") + datetime.timedelta(days=5), DateTime))\
+        .filter(CameraEvent.number_plate == number_plate)\
+        .order_by(CameraEvent.created_at)\
+        .all()
+
+    return pd.DataFrame.from_records(result, columns=['created_at', 'latitude', 'longitude'])

@@ -4,11 +4,14 @@ from dash import Dash, html
 import dash
 import dash_bootstrap_components as dbc
 
+
+
 dropdown = dbc.DropdownMenu(
     children=[
         dbc.DropdownMenuItem("Home", href="/"),
         dbc.DropdownMenuItem("Vehicles", href="/vehicles"),
         dbc.DropdownMenuItem("Clients", href="/clients"),
+        dbc.DropdownMenuItem("EventTrail", href="/eventtrail"),
     ],
     nav = True,
     in_navbar = True,
@@ -54,7 +57,7 @@ def main() -> None:
     app.title = "metagrated"
     app.layout = create_layout(app)
 
-    app.run_server(port=8005,debug=True)
+    server = app.server #run_server(port=8005,debug=True)
 
 
 if __name__=="__main__":
