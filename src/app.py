@@ -57,7 +57,7 @@ def main() -> None:
     server = app.server
     app.title = "metagrated"
     app.layout = create_layout(app)
-    app.run_server(port=8006,debug=True)
+    app.run_server(port=8007,debug=True)
 
 
 if __name__=="__main__":
