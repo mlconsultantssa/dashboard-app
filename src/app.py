@@ -4,7 +4,9 @@ from dash import Dash, html
 import dash
 import dash_bootstrap_components as dbc
 
-
+external_stylesheets = [dbc.themes.LUX]
+app = Dash(__name__, external_stylesheets=external_stylesheets, use_pages=True)
+server = app.server
 
 dropdown = dbc.DropdownMenu(
     children=[
@@ -59,10 +61,9 @@ def create_layout(app: Dash) -> html.Div:
 #     app.layout = create_layout(app)
 #     app.run_server(port=8007,debug=True)
 
-
-external_stylesheets = [dbc.themes.LUX]
-app = Dash(__name__, external_stylesheets=external_stylesheets, use_pages=True)
-server = app.server
 app.title = "metagrated"
 app.layout = create_layout(app)
-app.run_server(port=8009,debug=True)
+
+if __name__ == "__main__":
+    app.run_server(debug=True)
+#app.run_server(port=8009,debug=True)
