@@ -33,12 +33,10 @@ layout = html.Div(
         dbc.Row(
             [
                 dbc.Col(
-                    event_trail_map.render(ids.MAP_GROUP_LAYER),
-                    width=8
+                    event_trail_map.render(ids.MAP_GROUP_LAYER)
                 ), 
                 dbc.Col(
-                    dcc.Slider(0, 10, step=1, id=ids.SLIDER, vertical=True, tooltip={"always_visible": True}),
-                    width=4
+                    dcc.Slider(0, 10, step=1, id=ids.SLIDER, vertical=True, tooltip={"always_visible": True})
                 )
                 
             ]

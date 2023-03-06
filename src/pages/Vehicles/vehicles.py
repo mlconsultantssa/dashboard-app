@@ -28,7 +28,9 @@ layout = html.Div(
         ),
         dbc.Row(
             [
+                dbc.Col(
                 vehicle_event_map.render()
+                , width=6)
             ]
         ),
         html.Div('histrogram', id='histrogram'),
